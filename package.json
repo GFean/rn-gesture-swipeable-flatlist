@@ -2,7 +2,7 @@
   "name": "swipable-flatlist",
   "version": "1.0.0",
   "description": "swipable flatlist for react-native",
-  "main": "index.js",
+  "main": "./src/SwipableFlatList.tsx",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
