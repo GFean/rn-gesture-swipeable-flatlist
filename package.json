@@ -6,7 +6,31 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Gfean",
+  "author": {
+    "name": "George Fean",
+    "url": "https://github.com/GFean"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GFean/react-native-swipable-flatlist"
+  },
+  "keywords": [
+    "react",
+    "swipe",
+    "swipeable",
+    "list",
+    "react-native",
+    "component",
+    "customizable",
+    "mobile",
+    "ios",
+    "android",
+    "touchscreen",
+    "listview",
+    "flatlist",
+    "swipe-to-delete",
+    "swipe-actions"
+  ],
   "license": "ISC",
   "dependencies": {
     "react": "^18.2.0",

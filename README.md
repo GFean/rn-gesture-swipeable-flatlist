@@ -1,7 +1,10 @@
 # SwipableFlatList
 
-SwipableFlatList is a custom component that combines the functionality of [FlatList](https://reactnative.dev/docs/flatlist) and [Swipable](https://docs.swmansion.com/react-native-gesture-handler/docs/api/components/swipeable/) from React Native and [React Native Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler/docs/) to create a swipable list. It allows you to easily render a list of items that can be swiped to reveal additional actions.
+SwipableFlatList is a custom component that combines the functionality of [FlatList](https://reactnative.dev/docs/flatlist) and [Swipable](https://docs.swmansion.com/react-native-gesture-handler/docs/api/components/swipeable/) from [React Native]("https://reactnative.dev") and [React Native Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler/docs/) to create a swipable list. It allows you to easily render a list of items that can be swiped to reveal additional actions.
 
+This package uses usual, core components from both packages listed above - so this should work with any kind of React Native App and should have a high performance on both platforms.
+
+You can also pass additional props supported by FlatList & Swipable to customize the behavior and appearance of the list.
 
 
 ## Installation
@@ -84,10 +87,14 @@ A function that returns the component to render as left swipe actions for each i
 Similarly to the one above, this is the function that returns the component to render as right swipe actions for each item.
 This is also a SwipableProp, but for the simplicity, as you will mostly using left/right actions, it can be passed directly to the SwipableFlatList.
 
-You can also pass additional props supported by FlatList to customize the behavior and appearance of the list.
-
 ## Contributing
 Contributions are welcome! If you find any issues or would like to suggest improvements, please create a new issue or submit a pull request.
 
 ## License
 This project is licensed under the [ISC License](https://opensource.org/licenses/ISC).
+
+## Dependencies
+
+- [React Native Gesture Handler](https://github.com/software-mansion/react-native-gesture-handler)
+
+`react-native-swipable-flatlist` has a peer dependency on `react-native-gesture-handler`. It will be installed automatically when you install this package. However, please ensure that your project meets the requirements for `react-native-gesture-handler`.
