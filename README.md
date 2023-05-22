@@ -11,20 +11,20 @@ This package uses usual, core components from both packages listed above - so th
 
 You can also pass additional props supported by FlatList & Swipeable to customize the behavior and appearance of the list.
 
-[Check the example project](https://github.com/GFean/react-native-swipeable-flatlist-example)
+[Check the example project](https://github.com/GFean/rn-gesture-swipeable-flatlist-example)
 
 ## Installation
 
 Install the package using npm or yarn:
 
 ```bash
-npm install react-native-swipeable-flatlist
-yarn add react-native-swipeable-flatlist
+npm install rn-gesture-swipeable-flatlist
+yarn add rn-gesture-swipeable-flatlist
 ```
 # Usage 
 
 ```jsx
-import SwipeableFlatList from 'react-native-swipeable-flatlist';
+import SwipeableFlatList from 'rn-gesture-swipeable-flatlist';
 
 // Example usage
 const MyComponent = () => {
@@ -68,12 +68,12 @@ The SwipeableFlatList component accepts the following props:
 
 ### FlatlistProps: 
 
-As the react-native-swipeable-flatlist uses Flatlist from react-native core package, it can be passed FlatlistProps as the usual Flatlist.
+As the rn-gesture-swipeable-flatlist uses Flatlist from react-native core package, it can be passed FlatlistProps as the usual Flatlist.
 Check general FlatlistProps [here](https://github.com/facebook/react-native-website/blob/main/docs/flatlist.md)
 
 ### SwipeableProps
 
-As the react-native-swipeable-flatlist uses Swipeable component, it can be passed SwipeableProps, so you can adjust your SwipeableItem of the flatlist.
+As the rn-gesture-swipeable-flatlist uses Swipeable component, it can be passed SwipeableProps, so you can adjust your SwipeableItem of the flatlist.
 Check general SwipeableProps [here](https://docs.swmansion.com/react-native-gesture-handler/docs/api/components/swipeable/) 
 All the SwipeableProps can be passed under SwipeableProps prop to SwipeableFlatlist:
 
@@ -103,4 +103,4 @@ This project is licensed under the [ISC License](https://opensource.org/licenses
 
 - [React Native Gesture Handler](https://github.com/software-mansion/react-native-gesture-handler)
 
-`react-native-swipeable-flatlist` has a peer dependency on `react-native-gesture-handler`. It will be installed automatically when you install this package. However, please ensure that your project meets the requirements for `react-native-gesture-handler`.
+`rn-gesture-swipeable-flatlist` has a peer dependency on `react-native-gesture-handler`. It will be installed automatically when you install this package. However, please ensure that your project meets the requirements for `react-native-gesture-handler`.

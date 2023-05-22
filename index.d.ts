@@ -1,4 +1,4 @@
-declare module 'react-native-swipeable-flatlist' {
+declare module 'rn-gesture-swipeable-flatlist' {
     import { FlatListProps } from 'react-native';
     import {SwipeableProps} from 'react-native-gesture-handler/lib/typescript/components/Swipeable';
 

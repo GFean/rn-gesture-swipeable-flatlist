@@ -1,5 +1,5 @@
 {
-  "name": "react-native-swipeable-flatlist",
+  "name": "rn-gesture-swipeable-flatlist",
   "version": "1.0.0",
   "description": "swipeable flatlist for react-native",
   "main": "./src/SwipeableFlatList.tsx",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/GFean/react-native-swipeable-flatlist"
+    "url": "https://github.com/GFean/rn-gesture-swipeable-flatlist"
   },
 
   "keywords": [
