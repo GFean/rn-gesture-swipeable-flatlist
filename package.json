@@ -14,6 +14,7 @@
     "type": "git",
     "url": "https://github.com/GFean/react-native-swipable-flatlist"
   },
+
   "keywords": [
     "react",
     "swipe",
@@ -32,6 +33,7 @@
     "swipe-actions"
   ],
   "license": "ISC",
+  "types": "index.d.ts",
   "dependencies": {
     "react": "^18.2.0",
     "react-native": "^0.71.8",
