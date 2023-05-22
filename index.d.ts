@@ -1,16 +1,16 @@
-declare module 'react-native-swipable-flatlist' {
+declare module 'react-native-swipeable-flatlist' {
     import { FlatListProps } from 'react-native';
     import {SwipeableProps} from 'react-native-gesture-handler/lib/typescript/components/Swipeable';
 
   
-    export interface SwipableFlatListProps<T> extends FlatListProps<T> {
+    export interface SwipeableFlatListProps<T> extends FlatListProps<T> {
       renderLeftActions?: (item: T) => React.ReactNode;
       renderRightActions?: (item: T) => React.ReactNode;
-      swipableProps?: SwipeableProps;
+      swipeableProps?: SwipeableProps;
     }
   
-    export default function SwipableFlatList<T>(
-      props: SwipableFlatListProps<T>,
+    export default function SwipeableFlatList<T>(
+      props: SwipeableFlatListProps<T>,
     ): JSX.Element;
   }
   

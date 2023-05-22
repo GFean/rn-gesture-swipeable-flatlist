@@ -1,8 +1,8 @@
 {
-  "name": "react-native-swipable-flatlist",
+  "name": "react-native-swipeable-flatlist",
   "version": "1.0.0",
-  "description": "swipable flatlist for react-native",
-  "main": "./src/SwipableFlatList.tsx",
+  "description": "swipeable flatlist for react-native",
+  "main": "./src/SwipeableFlatList.tsx",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/GFean/react-native-swipable-flatlist"
+    "url": "https://github.com/GFean/react-native-swipeable-flatlist"
   },
 
   "keywords": [
