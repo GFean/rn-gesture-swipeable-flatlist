@@ -1,5 +1,10 @@
 # SwipableFlatList
 
+<div>
+  <img src="gifs/demo_android.gif" alt="Android Demo" width="400" />
+  <img src="gifs/demo_ios.gif" alt="iOS Demo" width="400" />
+</div>
+
 SwipableFlatList is a custom component that combines the functionality of [FlatList](https://reactnative.dev/docs/flatlist) and [Swipable](https://docs.swmansion.com/react-native-gesture-handler/docs/api/components/swipeable/) from [React Native]("https://reactnative.dev") and [React Native Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler/docs/) to create a swipable list. It allows you to easily render a list of items that can be swiped to reveal additional actions.
 
 This package uses usual, core components from both packages listed above - so this should work with any kind of React Native App and should have a high performance on both platforms.
