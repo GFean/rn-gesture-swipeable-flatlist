@@ -11,6 +11,7 @@ This package uses usual, core components from both packages listed above - so th
 
 You can also pass additional props supported by FlatList & Swipable to customize the behavior and appearance of the list.
 
+[Check the example project]("https://github.com/GFean/react-native-swipable-flatlist-example")
 
 ## Installation
 
