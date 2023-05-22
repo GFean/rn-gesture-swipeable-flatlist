@@ -1,5 +1,5 @@
 {
-  "name": "swipable-flatlist",
+  "name": "react-native-swipable-flatlist",
   "version": "1.0.0",
   "description": "swipable flatlist for react-native",
   "main": "./src/SwipableFlatList.tsx",
