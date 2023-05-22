@@ -1,0 +1,19 @@
+{
+  "name": "swipable-flatlist",
+  "version": "1.0.0",
+  "description": "swipable flatlist for react-native",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Gfean",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-native": "^0.71.8",
+    "react-native-gesture-handler": "^2.10.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.6"
+  }
+}
