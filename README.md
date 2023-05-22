@@ -1,4 +1,4 @@
-# SwipableFlatList
+# React Native Swipable FlatList
 
 <div>
   <img src="gifs/demo_android.gif" alt="Android Demo" width="400" />
