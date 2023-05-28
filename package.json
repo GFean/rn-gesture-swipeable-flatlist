@@ -30,7 +30,17 @@
     "listview",
     "flatlist",
     "swipe-to-delete",
-    "swipe-actions"
+    "swipe-actions",
+    "gesture",
+    "react-native-gesture-handler",
+    "high-performance",
+    "left-swipe",
+    "right-swipe",
+    "swipeable-list",
+    "react-native-swipeable-list",
+    "react-native-swipeable-flatlist",
+    "ui-component"
+
   ],
   "license": "ISC",
   "types": "index.d.ts",
