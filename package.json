@@ -1,6 +1,6 @@
 {
   "name": "rn-gesture-swipeable-flatlist",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "swipeable flatlist for react-native",
   "main": "./src/SwipeableFlatList.tsx",
   "scripts": {
