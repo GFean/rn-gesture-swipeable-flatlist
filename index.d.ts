@@ -7,6 +7,7 @@ declare module 'rn-gesture-swipeable-flatlist' {
       renderLeftActions?: (item: T) => React.ReactNode;
       renderRightActions?: (item: T) => React.ReactNode;
       swipeableProps?: SwipeableProps;
+      enableOpenMultipleRows?:boolean
     }
   
     export default function SwipeableFlatList<T>(
