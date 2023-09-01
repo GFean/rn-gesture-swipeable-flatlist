@@ -15,12 +15,22 @@ You can also pass additional props supported by FlatList & Swipeable to customiz
 
 ## Installation
 
-Install the package using npm or yarn:
+Install the package & peer dependencies using npm or yarn:
 
 ```bash
 npm install rn-gesture-swipeable-flatlist
+npm install --save react-native-gesture-handler
+
 yarn add rn-gesture-swipeable-flatlist
+yarn add react-native-gesture-handler
 ```
+If you are using expo, make sure you install your expo sdk compatible gesture handler version version by running:
+
+```bash
+expo install react-native-gesture-handler
+
+```
+
 # Usage 
 
 ```jsx
