@@ -6,4 +6,5 @@ export interface SwipeableFlatListProps<T> extends FlatListProps<T> {
    renderLeftActions?: (item: T) => ReactNode;
    renderRightActions?: (item: T) => ReactNode;
    swipeableProps?: SwipeableProps;
+   enableOpenMultipleRows?:boolean
 }
