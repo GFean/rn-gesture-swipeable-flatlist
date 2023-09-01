@@ -93,6 +93,10 @@ A function that returns the component to render as left swipe actions for each i
 Similarly to the one above, this is the function that returns the component to render as right swipe actions for each item.
 This is also a SwipeableProp, but for the simplicity, as you will mostly using left/right actions, it can be passed directly to the SwipeableFlatList.
 
+### enableOpenMultipleRows
+
+This is the prop to enable/disable multiple rows being opened. if enabled you can swipe multiple rows and they'll stay open, if disabled - only one row can be opened at a time and the previous one will be closed if you open the new one. Defaults to ```true```. 
+(please note, that when you'll alter this prop, you'll need to reinitialize the list - simply refresh the js bundle and the changes will be applied)
 ## Contributing
 Contributions are welcome! If you find any issues or would like to suggest improvements, please create a new issue or submit a pull request.
 
