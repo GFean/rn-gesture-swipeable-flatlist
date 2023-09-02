@@ -22,7 +22,7 @@ const SwipeableFlatList = <T,>({
       if (!enableOpenMultipleRows) {
          if (typeof openedRowIndex.current === 'number') {
             const previousSwipeable = swipeableRefs.current[openedRowIndex.current];
-            if (previousSwipeable) {
+            if (previousSwipeable && previousSwipeable !== swipeable) {
                previousSwipeable.close();
             }
          }
