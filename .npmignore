@@ -1,3 +1,6 @@
+#Exclude gifs
+gifs/
+
 # Exclude node_modules from being published
 node_modules/
 
