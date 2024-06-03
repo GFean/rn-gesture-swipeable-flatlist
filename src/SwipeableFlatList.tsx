@@ -1,6 +1,6 @@
 import React, { useCallback, useRef } from 'react';
 import { FlatList } from 'react-native';
-import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
+import { Swipeable } from 'react-native-gesture-handler';
 import { SwipeableFlatListProps } from './types';
 
 const SwipeableFlatList = <T,>({
@@ -62,14 +62,12 @@ const SwipeableFlatList = <T,>({
 
 
    return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
          <FlatList
             {...rest}
             data={data}
             keyExtractor={keyExtractor}
             renderItem={renderSwipeableItem}
          />
-      </GestureHandlerRootView>
    );
 };
 

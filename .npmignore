@@ -1,2 +1,19 @@
-gifs/
+# Exclude node_modules from being published
 node_modules/
+
+# Exclude any test or example files
+tests/
+examples/
+
+# Exclude any build or compiled files
+dist/
+
+# Exclude any config or environment files
+*.env
+*.local
+
+# Exclude any source maps
+*.map
+
+# Include specific files if needed
+!dist/

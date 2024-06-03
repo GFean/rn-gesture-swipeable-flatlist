@@ -1,9 +1,13 @@
 {
   "name": "rn-gesture-swipeable-flatlist",
   "version": "1.1.14",
-  "description": "swipeable flatlist for react-native",
-  "main": "./src/SwipeableFlatList.tsx",
+  "description": "Swipeable FlatList for React Native",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": {
@@ -14,7 +18,6 @@
     "type": "git",
     "url": "https://github.com/GFean/rn-gesture-swipeable-flatlist"
   },
-
   "keywords": [
     "react",
     "swipe",
@@ -40,15 +43,16 @@
     "react-native-swipeable-list",
     "react-native-swipeable-flatlist",
     "ui-component"
-
   ],
   "license": "ISC",
-  "types": "index.d.ts",
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-native": "^0.71.8"
+  "peerDependencies": {
+    "react": ">=17.0.0",
+    "react-native": ">=0.71.0",
+    "react-native-gesture-handler": ">=2.10.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.6"
+    "@types/react": "^18.0.0",
+    "typescript": "^4.4.4"
   }
 }
+
