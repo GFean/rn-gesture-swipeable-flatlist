@@ -1,22 +1,22 @@
-import React, { useCallback, useRef } from 'react';
+import React, { forwardRef, useCallback, useRef } from 'react';
 import { FlatList } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
-import { SwipeableFlatListProps } from './types';
+import { SwipeableFlatListProps,  } from './types';
 
-const SwipeableFlatList = <T,>({
+const SwipeableFlatList = forwardRef<FlatList<any>, SwipeableFlatListProps<any>>(({
    data,
    keyExtractor,
    renderItem,
    renderLeftActions,
    renderRightActions,
    swipeableProps,
-   enableOpenMultipleRows=true,
+   enableOpenMultipleRows = true,
    ...rest
-}: SwipeableFlatListProps<T>) => {
+}: SwipeableFlatListProps<any>, ref) => {
 
    const openedRowIndex = useRef<number | null>(null);
    const swipeableRefs = useRef<(Swipeable | null)[]>([]);
-
+ 
 
    const onSwipeableOpen = useCallback((directions: "left" | "right", swipeable: Swipeable, index: number) => {
       if (!enableOpenMultipleRows) {
@@ -28,22 +28,22 @@ const SwipeableFlatList = <T,>({
          }
          openedRowIndex.current = index;
       }
-      swipeableProps?.onSwipeableOpen?.(directions, swipeable)
-   }, [])
+      swipeableProps?.onSwipeableOpen?.(directions, swipeable);
+   }, [enableOpenMultipleRows, swipeableProps]);
 
-   const renderSwipeableItem = useCallback(({ item, index }: { item: T; index: number }) => {
+   const renderSwipeableItem = useCallback(({ item, index }: { item: any; index: number }) => {
       const leftAction = renderLeftActions ? () => renderLeftActions(item) : undefined;
       const rightAction = renderRightActions ? () => renderRightActions(item) : undefined;
-
-      const separators = {
-         highlight: () => { },
-         unhighlight: () => { },
-         updateProps: () => { },
-      };
 
       if (!renderItem) {
          return null;
       }
+
+      const separators = {
+         highlight: () => {},
+         unhighlight: () => {},
+         updateProps: (select: "leading" | "trailing", newProps: any) => {}
+      };
 
       return (
          <Swipeable
@@ -58,17 +58,20 @@ const SwipeableFlatList = <T,>({
             {renderItem({ item, index, separators })}
          </Swipeable>
       );
-   }, [renderItem, renderLeftActions, renderRightActions, swipeableProps]);
-
+   }, [renderItem, renderLeftActions, renderRightActions, swipeableProps, onSwipeableOpen]);
 
    return (
          <FlatList
             {...rest}
+            ref={ref}
             data={data}
             keyExtractor={keyExtractor}
             renderItem={renderSwipeableItem}
          />
    );
-};
+});
 
 export default SwipeableFlatList;
+
+
+

@@ -30,6 +30,7 @@ If you are using expo, make sure you install your expo sdk compatible gesture ha
 expo install react-native-gesture-handler
 
 ```
+Versions v2.0.0+ should wrap the project in ```GestureHandlerRootView``` from ``` react-native-gesture-handler```.
 
 # Usage 
 
