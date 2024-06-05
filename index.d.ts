@@ -1,5 +1,5 @@
 declare module 'rn-gesture-swipeable-flatlist' {
-    import { FlatListProps } from 'react-native';
+    import { FlatListProps, FlatList } from 'react-native';
     import {SwipeableProps} from 'react-native-gesture-handler/lib/typescript/components/Swipeable';
 
   
@@ -13,5 +13,10 @@ declare module 'rn-gesture-swipeable-flatlist' {
     export default function SwipeableFlatList<T>(
       props: SwipeableFlatListProps<T>,
     ): JSX.Element;
+
+    export interface SwipeableFlatListRef<T> extends FlatList<T> {
+      closeAnyOpenRows: () => void;
+    }
+    
   }
   

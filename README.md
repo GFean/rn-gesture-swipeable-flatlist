@@ -96,19 +96,57 @@ All the SwipeableProps can be passed under SwipeableProps prop to SwipeableFlatl
     }}
 >
 ```
-### renderLeftActions
+### renderLeftActions: ((item: any) => React.ReactNode) | undefined
 
 A function that returns the component to render as left swipe actions for each item. This is actually a SwipeableProp, but for the simplicity, as you will mostly using left/right actions, it can be passed directly to the SwipeableFlatList.
 
-### renderRightActions
+### renderRightActions: ((item: any) => React.ReactNode) | undefined
 
 Similarly to the one above, this is the function that returns the component to render as right swipe actions for each item.
 This is also a SwipeableProp, but for the simplicity, as you will mostly using left/right actions, it can be passed directly to the SwipeableFlatList.
 
-### enableOpenMultipleRows
+### enableOpenMultipleRows:boolean
 
 This is the prop to enable/disable multiple rows being opened. if enabled you can swipe multiple rows and they'll stay open, if disabled - only one row can be opened at a time and the previous one will be closed if you open the new one. Defaults to ```true```. 
 (please note, that when you'll alter this prop, you'll need to reinitialize the list - simply refresh the js bundle and the changes will be applied)
+
+### ref: SwipeableFlatListRef
+The ref is passed to the base ```Flatlist``` component and you can access all the native api available methods through this. Special interface  ```SwipeableFlatListRef ``` will add a custom module related function to this  ```ref ``` which is   ```closeAnyOpenRows  ``` - see the description below.
+
+## Methods
+
+### closeAnyOpenRows: () => void
+SwipeableFlatList provides a method `closeAnyExistingRows()` accessible via a ref to the component. This method can be used to programmatically close any opened rows:
+
+- **When `enableOpenMultipleRows` is true**: The method closes all swipeable rows that are currently open.
+- **When `enableOpenMultipleRows` is false**: The method closes the currently open swipeable row, if any.
+
+This method is particularly useful in scenarios where you need to ensure that all swipe actions are reset, such as when navigating away from the list or performing batch actions on the list data.
+
+example usage:
+
+```jsx
+
+   const flatlistRef = useRef<SwipeableFlatListRef<DataItem> | null>(null);
+   
+   const closeAllOpenRows = () => {
+    flatListRef.current?.closeAnyOpenRows();
+   };
+   
+   return (
+  <SwipeableFlatList
+    ref={flatListRef}
+    data={data}
+    keyExtractor={(item) => item.id}
+    renderItem={renderItem}
+    renderLeftActions={renderLeftAction}
+    renderRightActions={renderRightAction}
+  />
+);
+
+```
+
+
 ## Contributing
 Contributions are welcome! If you find any issues or would like to suggest improvements, please create a new issue or submit a pull request.
 
