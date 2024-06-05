@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { FlatListProps } from 'react-native';
+import { FlatList, FlatListProps } from 'react-native';
 import { SwipeableProps } from 'react-native-gesture-handler';
 
 export interface SwipeableFlatListProps<T> extends FlatListProps<T> {
@@ -8,3 +8,8 @@ export interface SwipeableFlatListProps<T> extends FlatListProps<T> {
   swipeableProps?: SwipeableProps;
   enableOpenMultipleRows?: boolean;
 }
+
+export interface SwipeableFlatListRef<T> extends FlatList<T> {
+  closeAnyOpenRows: () => void;
+}
+
