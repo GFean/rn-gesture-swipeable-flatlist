@@ -1,106 +1,168 @@
-import React, { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
-import { FlatList } from 'react-native';
+import React, {
+  ForwardedRef,
+  ReactElement,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from 'react';
+import { FlatList, ListRenderItemInfo } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
-import { SwipeableFlatListProps,  } from './types';
 
-const SwipeableFlatList = forwardRef<FlatList<any>, SwipeableFlatListProps<any>>(({
-   data,
-   keyExtractor,
-   renderItem,
-   renderLeftActions,
-   renderRightActions,
-   swipeableProps,
-   enableOpenMultipleRows = true,
-   ...rest
-}: SwipeableFlatListProps<any>, ref) => {
+import { createSwipeableRowsController } from './swipeableRowsController';
+import { SwipeableFlatListProps, SwipeableFlatListRef } from './types';
 
-   const openedRowIndex = useRef<number | null>(null);
-   const swipeableRefs = useRef<(Swipeable | null)[]>([]);
-   const flatListRef = useRef<FlatList>(null);
+const getDefaultKey = <T,>(item: T, index: number): string => {
+  if (
+    item !== null &&
+    typeof item === 'object' &&
+    'key' in (item as Record<string, unknown>)
+  ) {
+    const itemKey = (item as { key?: unknown }).key;
 
-   useImperativeHandle(ref, () => new Proxy({} as FlatList<any>, {
-      get: (_, prop) => {
-        if (prop === 'closeAnyOpenRows') {
-          return () => {
-            // Close all open swipeables if multiple rows are enabled
-            if (enableOpenMultipleRows) {
-              swipeableRefs.current.forEach(swipeable => {
-                if (swipeable) swipeable.close();
-              });
-            } else {
-              // Close the currently open swipeable row
-              const currentIndex = swipeableRefs.current.findIndex(swipeable => swipeable === swipeableRefs.current[openedRowIndex.current as number]);
-              if (currentIndex !== -1) {
-                swipeableRefs.current[currentIndex]?.close();
-                openedRowIndex.current = null; // Reset the index after closing
-              }
-            }
-          };
-        }
-        // Safely delegate other property accesses to the FlatList ref
-        const property = flatListRef.current?.[prop as keyof FlatList<any>];
-        if (typeof property === 'function') {
-          return property.bind(flatListRef.current);
-        }
-        return property;
+    if (typeof itemKey === 'string' || typeof itemKey === 'number') {
+      return String(itemKey);
+    }
+  }
+
+  if (
+    item !== null &&
+    typeof item === 'object' &&
+    'id' in (item as Record<string, unknown>)
+  ) {
+    const itemId = (item as { id?: unknown }).id;
+
+    if (typeof itemId === 'string' || typeof itemId === 'number') {
+      return String(itemId);
+    }
+  }
+
+  return String(index);
+};
+
+const SwipeableFlatListInner = <T,>(
+  {
+    data,
+    keyExtractor,
+    renderItem,
+    renderLeftActions,
+    renderRightActions,
+    swipeableProps,
+    enableOpenMultipleRows = true,
+    ...rest
+  }: SwipeableFlatListProps<T>,
+  ref: ForwardedRef<SwipeableFlatListRef<T>>
+) => {
+  const rowsControllerRef = useRef<ReturnType<typeof createSwipeableRowsController> | null>(null);
+  const flatListRef = useRef<FlatList<T> | null>(null);
+  const rowRefCallbacksRef = useRef(new Map<string, (row: Swipeable | null) => void>());
+
+  if (rowsControllerRef.current === null) {
+    rowsControllerRef.current = createSwipeableRowsController(enableOpenMultipleRows);
+  }
+
+  const rowsController = rowsControllerRef.current;
+
+  useEffect(() => {
+    rowsController.setAllowMultipleOpenRows(enableOpenMultipleRows);
+  }, [enableOpenMultipleRows, rowsController]);
+
+  const resolveRowKey = useCallback(
+    (item: T, index: number) => (keyExtractor ? keyExtractor(item, index) : getDefaultKey(item, index)),
+    [keyExtractor]
+  );
+
+  const getRowRefCallback = useCallback((rowKey: string) => {
+    const existingCallback = rowRefCallbacksRef.current.get(rowKey);
+
+    if (existingCallback) {
+      return existingCallback;
+    }
+
+    const callback = (row: Swipeable | null) => {
+      rowsController.registerRow(rowKey, row);
+
+      if (row === null) {
+        rowRefCallbacksRef.current.delete(rowKey);
       }
-   }), [enableOpenMultipleRows]);
- 
+    };
 
-   const onSwipeableOpen = useCallback((directions: "left" | "right", swipeable: Swipeable, index: number) => {
-      if (!enableOpenMultipleRows) {
-         if (typeof openedRowIndex.current === 'number') {
-            const previousSwipeable = swipeableRefs.current[openedRowIndex.current];
-            if (previousSwipeable && previousSwipeable !== swipeable) {
-               previousSwipeable.close();
-            }
-         }
-         openedRowIndex.current = index;
+    rowRefCallbacksRef.current.set(rowKey, callback);
+
+    return callback;
+  }, []);
+
+  useImperativeHandle(
+    ref,
+    () =>
+      new Proxy({} as SwipeableFlatListRef<T>, {
+        get: (_, prop) => {
+          if (prop === 'closeAnyOpenRows') {
+            return () => {
+              rowsController.closeAnyOpenRows();
+            };
+          }
+
+          const property = flatListRef.current?.[prop as keyof FlatList<T>];
+
+          if (typeof property === 'function') {
+            return property.bind(flatListRef.current);
+          }
+
+          return property;
+        },
+      }),
+    []
+  );
+
+  const renderSwipeableItem = useCallback(
+    ({ item, index, separators }: ListRenderItemInfo<T>) => {
+      if (!renderItem) {
+        return null;
       }
-      swipeableProps?.onSwipeableOpen?.(directions, swipeable);
-   }, [enableOpenMultipleRows, swipeableProps]);
 
-   const renderSwipeableItem = useCallback(({ item, index }: { item: any; index: number }) => {
+      const rowKey = resolveRowKey(item, index);
       const leftAction = renderLeftActions ? () => renderLeftActions(item) : undefined;
       const rightAction = renderRightActions ? () => renderRightActions(item) : undefined;
 
-      if (!renderItem) {
-         return null;
-      }
-
-      const separators = {
-         highlight: () => {},
-         unhighlight: () => {},
-         updateProps: (select: "leading" | "trailing", newProps: any) => {}
-      };
-
       return (
-         <Swipeable
-            {...swipeableProps}
-            ref={(ref) => {
-               swipeableRefs.current[index] = ref;
-            }}
-            renderRightActions={rightAction}
-            renderLeftActions={leftAction}
-            onSwipeableOpen={(directions, swipeable) => onSwipeableOpen(directions, swipeable, index)}
-         >
-            {renderItem({ item, index, separators })}
-         </Swipeable>
+        <Swipeable
+          {...swipeableProps}
+          ref={getRowRefCallback(rowKey)}
+          renderLeftActions={leftAction}
+          renderRightActions={rightAction}
+          onSwipeableClose={(direction, row) => {
+            rowsController.handleClose(rowKey);
+            swipeableProps?.onSwipeableClose?.(direction, row);
+          }}
+          onSwipeableOpen={(direction, row) => {
+            rowsController.handleOpen(rowKey, row);
+            swipeableProps?.onSwipeableOpen?.(direction, row);
+          }}
+        >
+          {renderItem({ item, index, separators })}
+        </Swipeable>
       );
-   }, [renderItem, renderLeftActions, renderRightActions, swipeableProps, onSwipeableOpen]);
+    },
+    [getRowRefCallback, renderItem, renderLeftActions, renderRightActions, resolveRowKey, rowsController, swipeableProps]
+  );
 
-   return (
-         <FlatList
-            {...rest}
-            ref={flatListRef}
-            data={data}
-            keyExtractor={keyExtractor}
-            renderItem={renderSwipeableItem}
-         />
-   );
-});
+  return (
+    <FlatList
+      {...rest}
+      ref={flatListRef}
+      data={data}
+      keyExtractor={keyExtractor}
+      renderItem={renderSwipeableItem}
+    />
+  );
+};
+
+type SwipeableFlatListComponent = <T>(
+  props: SwipeableFlatListProps<T> & { ref?: ForwardedRef<SwipeableFlatListRef<T>> }
+) => ReactElement | null;
+
+const SwipeableFlatList = forwardRef(SwipeableFlatListInner) as SwipeableFlatListComponent;
 
 export default SwipeableFlatList;
-
-
-
