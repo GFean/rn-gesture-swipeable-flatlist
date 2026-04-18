@@ -7,6 +7,9 @@ const createRowHandle = (rowKey: string, events: string[]): SwipeableRowHandle =
   close() {
     events.push(`close:${rowKey}`);
   },
+  openLeft() {},
+  openRight() {},
+  reset() {},
 });
 
 test('controller closes the previously open row when multiple rows are disabled', () => {
@@ -76,6 +79,23 @@ test('controller closes open rows when switching from multiple to single mode', 
   controller.registerRow('second', secondRow);
 
   controller.handleOpen('first', firstRow);
+  controller.handleOpen('second', secondRow);
+  controller.setAllowMultipleOpenRows(false);
+
+  assert.deepEqual(events, ['close:first', 'close:second']);
+});
+
+test('controller keeps single-open rows tracked across false -> true -> false mode changes', () => {
+  const events: string[] = [];
+  const controller = createSwipeableRowsController(false);
+  const firstRow = createRowHandle('first', events);
+  const secondRow = createRowHandle('second', events);
+
+  controller.registerRow('first', firstRow);
+  controller.registerRow('second', secondRow);
+
+  controller.handleOpen('first', firstRow);
+  controller.setAllowMultipleOpenRows(true);
   controller.handleOpen('second', secondRow);
   controller.setAllowMultipleOpenRows(false);
 

@@ -4,18 +4,82 @@ import test from 'node:test';
 import React from 'react';
 import TestRenderer, { act } from 'react-test-renderer';
 
-import { mockEvents, resetMockEvents, withMockedModules } from './mockModules';
+import {
+  mockEvents,
+  resetMockEvents,
+  withMockedModules,
+} from './mockModules';
 
 import type { SwipeableFlatListProps, SwipeableFlatListRef } from '../src';
 
 type SwipeableFlatListModule = typeof import('../src/index');
+type ReanimatedSwipeableFlatListModule = typeof import('../src/reanimated');
 type RowItem = { id: string };
 type KeyedRowItem = { id: string; key: string };
 type TypedSwipeableFlatList = (
   props: SwipeableFlatListProps<RowItem> & { ref?: React.Ref<SwipeableFlatListRef<RowItem>> }
 ) => React.ReactElement | null;
 
-const SwipeableFlatList = withMockedModules(() => require('../src/index').default) as TypedSwipeableFlatList;
+const clearPackageCache = () => {
+  [
+    '../src/index',
+    '../src/reanimated',
+    '../src/SwipeableFlatList',
+    '../src/ReanimatedSwipeableFlatList',
+    '../src/createSwipeableFlatList',
+    '../src/LegacySwipeableRowAdapter',
+    '../src/ReanimatedSwipeableRowAdapter',
+    '../src/swipeableRowAdapterUtils',
+  ].forEach((modulePath) => {
+    try {
+      delete require.cache[require.resolve(modulePath)];
+    } catch {}
+  });
+};
+
+const withCapturedConsoleWarn = <T,>(callback: (warnings: string[]) => T): T => {
+  const originalConsoleWarn = console.warn;
+  const warnings: string[] = [];
+  console.warn = (message?: unknown) => {
+    warnings.push(String(message));
+  };
+
+  try {
+    return callback(warnings);
+  } finally {
+    console.warn = originalConsoleWarn;
+  }
+};
+
+const loadSwipeableFlatList = () =>
+  withMockedModules(() => {
+    clearPackageCache();
+
+    return require('../src/index').default;
+  }) as TypedSwipeableFlatList;
+
+const loadPackageExports = () =>
+  withMockedModules(() => {
+    clearPackageCache();
+
+    return require('../src/index');
+  }) as SwipeableFlatListModule;
+
+const loadReanimatedSwipeableFlatList = () =>
+  withMockedModules(() => {
+    clearPackageCache();
+
+    return require('../src/reanimated').default;
+  }) as TypedSwipeableFlatList;
+
+const loadReanimatedPackageExports = () =>
+  withMockedModules(() => {
+    clearPackageCache();
+
+    return require('../src/reanimated');
+  }) as ReanimatedSwipeableFlatListModule;
+
+const SwipeableFlatList = loadSwipeableFlatList();
 
 const hasHostType =
   (expectedType: string) =>
@@ -23,7 +87,13 @@ const hasHostType =
     node.type === expectedType;
 
 test('package index exports the expected public API', () => {
-  const packageExports = withMockedModules(() => require('../src/index')) as SwipeableFlatListModule;
+  const packageExports = loadPackageExports();
+
+  assert.equal(typeof packageExports.default, 'object');
+});
+
+test('package reanimated entrypoint exports the expected public API', () => {
+  const packageExports = loadReanimatedPackageExports();
 
   assert.equal(typeof packageExports.default, 'object');
 });
@@ -168,6 +238,64 @@ test('SwipeableFlatList closes open rows when multiple mode is disabled at runti
   act(() => {
     const swipeables = getSwipeables();
     swipeables[0].props.onSwipeableOpen('right', swipeables[0].props.swipeableHandle);
+    swipeables[1].props.onSwipeableOpen('left', swipeables[1].props.swipeableHandle);
+  });
+
+  act(() => {
+    renderer!.update(
+      React.createElement(SwipeableFlatList, {
+        data,
+        enableOpenMultipleRows: false,
+        keyExtractor: (item: RowItem) => item.id,
+        renderItem: ({ item }: { item: RowItem }) =>
+          React.createElement('RowHost', { rowId: item.id }),
+      })
+    );
+  });
+
+  assert.deepEqual(mockEvents.closedRows, ['row-0', 'row-1']);
+});
+
+test('SwipeableFlatList closes existing single-open rows across false -> true -> false mode changes', () => {
+  resetMockEvents();
+
+  const data = [{ id: 'first' }, { id: 'second' }];
+
+  let renderer: TestRenderer.ReactTestRenderer;
+
+  act(() => {
+    renderer = TestRenderer.create(
+      React.createElement(SwipeableFlatList, {
+        data,
+        enableOpenMultipleRows: false,
+        keyExtractor: (item: RowItem) => item.id,
+        renderItem: ({ item }: { item: RowItem }) =>
+          React.createElement('RowHost', { rowId: item.id }),
+      })
+    );
+  });
+
+  const getSwipeables = () => renderer!.root.findAll(hasHostType('MockSwipeable'));
+
+  act(() => {
+    const swipeables = getSwipeables();
+    swipeables[0].props.onSwipeableOpen('right', swipeables[0].props.swipeableHandle);
+  });
+
+  act(() => {
+    renderer!.update(
+      React.createElement(SwipeableFlatList, {
+        data,
+        enableOpenMultipleRows: true,
+        keyExtractor: (item: RowItem) => item.id,
+        renderItem: ({ item }: { item: RowItem }) =>
+          React.createElement('RowHost', { rowId: item.id }),
+      })
+    );
+  });
+
+  act(() => {
+    const swipeables = getSwipeables();
     swipeables[1].props.onSwipeableOpen('left', swipeables[1].props.swipeableHandle);
   });
 
@@ -423,6 +551,156 @@ test('SwipeableFlatList direct action props override swipeableProps action rende
 
   assert.equal(swipeable.props.renderLeftActions().props.source, 'direct:first');
   assert.equal(swipeable.props.renderRightActions().props.source, 'direct:first');
+});
+
+test('reanimated entrypoint renders ReanimatedSwipeable rows and keeps the ref API intact', () => {
+  resetMockEvents();
+
+  const listRef = React.createRef<SwipeableFlatListRef<RowItem>>();
+  const ReanimatedSwipeableFlatList = loadReanimatedSwipeableFlatList();
+
+  let renderer: TestRenderer.ReactTestRenderer;
+
+  act(() => {
+    renderer = TestRenderer.create(
+      React.createElement(ReanimatedSwipeableFlatList, {
+        ref: listRef,
+        data: [{ id: 'first' }, { id: 'second' }],
+        keyExtractor: (item: RowItem) => item.id,
+        renderItem: ({ item }: { item: RowItem }) =>
+          React.createElement('RowHost', { rowId: item.id }),
+      })
+    );
+  });
+
+  const swipeables = renderer!.root.findAll(hasHostType('MockReanimatedSwipeable'));
+
+  act(() => {
+    swipeables[0].props.onSwipeableOpen('right', swipeables[0].props.swipeableHandle);
+    swipeables[1].props.onSwipeableOpen('left', swipeables[1].props.swipeableHandle);
+    listRef.current?.closeAnyOpenRows();
+  });
+
+  assert.equal(swipeables.length, 2);
+  assert.deepEqual(mockEvents.closedRows, ['row-0', 'row-1']);
+});
+
+test('reanimated entrypoint adapts legacy swipeable callbacks', () => {
+  resetMockEvents();
+
+  const events: string[] = [];
+  const ReanimatedSwipeableFlatList = loadReanimatedSwipeableFlatList();
+
+  let renderer: TestRenderer.ReactTestRenderer;
+
+  act(() => {
+    renderer = TestRenderer.create(
+      React.createElement(ReanimatedSwipeableFlatList, {
+        data: [{ id: 'first' }],
+        keyExtractor: (item: RowItem) => item.id,
+        renderItem: ({ item }: { item: RowItem }) =>
+          React.createElement('RowHost', { rowId: item.id }),
+        renderLeftActions: (item: RowItem) => React.createElement('LeftAction', { source: `direct:${item.id}` }),
+        swipeableProps: {
+          onSwipeableLeftOpen: () => {
+            events.push('left-open');
+          },
+          onSwipeableLeftWillOpen: () => {
+            events.push('left-will-open');
+          },
+          onSwipeableOpen: (direction) => {
+            events.push(`open:${direction}`);
+          },
+          renderLeftActions: () => React.createElement('LeftAction', { source: 'swipeableProps' }),
+          useNativeAnimations: false,
+        },
+      })
+    );
+  });
+
+  const swipeable = renderer!.root.find(hasHostType('MockReanimatedSwipeable'));
+
+  assert.equal(swipeable.props.renderLeftActions().props.source, 'direct:first');
+
+  act(() => {
+    swipeable.props.onSwipeableWillOpen('left');
+    swipeable.props.onSwipeableOpen('left', swipeable.props.swipeableHandle);
+  });
+
+  assert.deepEqual(events, ['left-will-open', 'left-open', 'open:left']);
+});
+
+test('reanimated entrypoint falls back to swipeableProps actions and forwards close/right callbacks', () => {
+  resetMockEvents();
+
+  const events: string[] = [];
+  const ReanimatedSwipeableFlatList = loadReanimatedSwipeableFlatList();
+
+  let renderer: TestRenderer.ReactTestRenderer;
+
+  act(() => {
+    renderer = TestRenderer.create(
+      React.createElement(ReanimatedSwipeableFlatList, {
+        data: [{ id: 'first' }],
+        keyExtractor: (item: RowItem) => item.id,
+        renderItem: ({ item }: { item: RowItem }) =>
+          React.createElement('RowHost', { rowId: item.id }),
+        swipeableProps: {
+          onSwipeableClose: (direction) => {
+            events.push(`close:${direction}`);
+          },
+          onSwipeableRightOpen: () => {
+            events.push('right-open');
+          },
+          onSwipeableRightWillOpen: () => {
+            events.push('right-will-open');
+          },
+          onSwipeableOpen: (direction) => {
+            events.push(`open:${direction}`);
+          },
+          renderRightActions: () => React.createElement('RightAction', { source: 'swipeableProps' }),
+        },
+      })
+    );
+  });
+
+  const swipeable = renderer!.root.find(hasHostType('MockReanimatedSwipeable'));
+
+  assert.equal(swipeable.props.renderRightActions().props.source, 'swipeableProps');
+
+  act(() => {
+    swipeable.props.onSwipeableWillOpen('right');
+    swipeable.props.onSwipeableOpen('right', swipeable.props.swipeableHandle);
+    swipeable.props.onSwipeableClose('right', swipeable.props.swipeableHandle);
+  });
+
+  assert.deepEqual(events, ['right-will-open', 'right-open', 'open:right', 'close:right']);
+});
+
+test('legacy entrypoint does not warn or render reanimated rows when ReanimatedSwipeable is unavailable', () => {
+  resetMockEvents();
+
+  let renderer: TestRenderer.ReactTestRenderer;
+
+  withCapturedConsoleWarn((warnings) => {
+    act(() => {
+      renderer = TestRenderer.create(
+        React.createElement(SwipeableFlatList, {
+          data: [{ id: 'first' }, { id: 'second' }],
+          keyExtractor: (item: RowItem) => item.id,
+          renderItem: ({ item }: { item: RowItem }) =>
+            React.createElement('RowHost', { rowId: item.id }),
+        })
+      );
+    });
+
+    const legacySwipeables = renderer!.root.findAll(hasHostType('MockSwipeable'));
+    const reanimatedSwipeables = renderer!.root.findAll(hasHostType('MockReanimatedSwipeable'));
+
+    assert.equal(legacySwipeables.length, 2);
+    assert.equal(reanimatedSwipeables.length, 0);
+    assert.deepEqual(warnings, []);
+  });
 });
 
 test('SwipeableFlatList returns null rows when renderItem is omitted', () => {

@@ -1,28 +1,51 @@
 # rn-gesture-swipeable-flatlist
 
-`rn-gesture-swipeable-flatlist` wraps React Native's `FlatList` with `react-native-gesture-handler`'s `Swipeable` so each row can expose left and right swipe actions while still behaving like a normal list.
+![npm](https://img.shields.io/npm/v/rn-gesture-swipeable-flatlist)
+![license](https://img.shields.io/npm/l/rn-gesture-swipeable-flatlist)
 
-It supports:
+A fast, simple swipeable FlatList for React Native.
 
-- all regular `FlatList` props
-- extra `Swipeable` configuration through `swipeableProps`
-- optional `renderLeftActions` / `renderRightActions` helpers bound to each item
-- single-open or multi-open row behavior
-- an imperative `closeAnyOpenRows()` ref method
+👉 Drop-in `FlatList` replacement with swipe-to-delete support.
+
+Built on top of `react-native-gesture-handler` and Reanimated, the standard gesture stack in React Native.
 
 ![Demo](gifs/demo_gif.gif)
 
-## Compatibility
+A React Native swipeable FlatList for building:
 
-- `react-native-gesture-handler >= 2.10.0`
-- React Native `>= 0.71.0`
-- React `>= 17.0.0`
-- `2.4.x` keeps the current `Swipeable`-based implementation for compatibility with existing apps
-- `react-native-reanimated` is not required for `2.4.x`
+- swipe to delete
+- inbox-style lists
+- gesture-based row actions
+
+Built on `FlatList` with support for both:
+
+- `rn-gesture-swipeable-flatlist/reanimated` using `ReanimatedSwipeable` (recommended)
+- `rn-gesture-swipeable-flatlist` using classic `Swipeable`
+
+If you are searching for a React Native swipe list, swipeable flatlist, or gesture handler swipeable list, this package is built for that exact use case.
+
+## Why this library?
+
+React Native does not ship a built-in swipeable list component.
+
+Building one from scratch usually means wiring gesture handlers, tracking open rows, managing refs, and keeping everything stable as list data changes.
+
+This package handles that for you while staying close to normal `FlatList` usage.
+
+## Which implementation should I use?
+
+👉 Use `rn-gesture-swipeable-flatlist/reanimated` by default.
+
+`Swipeable` is deprecated in newer versions of `react-native-gesture-handler`.
+
+| Import | Uses | Recommendation | Requires |
+| --- | --- | --- | --- |
+| `rn-gesture-swipeable-flatlist/reanimated` | `ReanimatedSwipeable` | Use by default for new apps | `react-native-gesture-handler` + `react-native-reanimated >= 2.3.0` |
+| `rn-gesture-swipeable-flatlist` | classic `Swipeable` | Only use if you intentionally want the legacy RNGH component | `react-native-gesture-handler` |
 
 ## Installation
 
-Install the package and its peer dependency:
+Install the package with Gesture Handler:
 
 ```bash
 npm install rn-gesture-swipeable-flatlist react-native-gesture-handler
@@ -34,144 +57,164 @@ or:
 yarn add rn-gesture-swipeable-flatlist react-native-gesture-handler
 ```
 
-If you use Expo, install the Gesture Handler version that matches your SDK:
+If you use the recommended `/reanimated` import, also install Reanimated:
 
 ```bash
-expo install react-native-gesture-handler
+npm install react-native-reanimated
 ```
 
-React Native Gesture Handler requires root setup in your app. On current versions, wrap your app root with `GestureHandlerRootView` and follow the official installation guide:
+If you use Expo:
 
+```bash
+expo install react-native-gesture-handler react-native-reanimated
+```
+
+## Gesture Handler Setup
+
+Required for both imports.
+
+Wrap your app root with `GestureHandlerRootView`:
+
+```tsx
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+export default function App() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ActualApp />
+    </GestureHandlerRootView>
+  );
+}
+```
+
+Official docs:
 https://docs.swmansion.com/react-native-gesture-handler/docs/fundamentals/installation
 
-## Basic Usage
+## Reanimated Setup
+
+Required only for `rn-gesture-swipeable-flatlist/reanimated`.
+
+Use `react-native-reanimated@2.3.0` or newer and complete the normal Reanimated installation for your app.
+
+Official docs:
+https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started
+
+## Copy-Paste Example
+
+This is the recommended setup for a swipe to delete React Native list:
 
 ```tsx
 import React from 'react';
-import { Text, View } from 'react-native';
-import SwipeableFlatList from 'rn-gesture-swipeable-flatlist';
+import { Pressable, Text, View } from 'react-native';
+import SwipeableFlatList from 'rn-gesture-swipeable-flatlist/reanimated';
 
-type TodoItem = {
+type Message = {
   id: string;
-  title: string;
+  subject: string;
 };
 
-const data: TodoItem[] = [
-  { id: '1', title: 'Buy milk' },
-  { id: '2', title: 'Reply to email' },
+const initialData: Message[] = [
+  { id: '1', subject: 'Welcome' },
+  { id: '2', subject: 'Invoice' },
 ];
 
-export function TodoList() {
+export function InboxScreen() {
+  const [data, setData] = React.useState(initialData);
+
+  const removeItem = (id: string) => {
+    setData((current) => current.filter((item) => item.id !== id));
+  };
+
   return (
     <SwipeableFlatList
       data={data}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
         <View>
-          <Text>{item.title}</Text>
-        </View>
-      )}
-      renderLeftActions={(item) => (
-        <View>
-          <Text>Pin {item.title}</Text>
+          <Text>{item.subject}</Text>
         </View>
       )}
       renderRightActions={(item) => (
-        <View>
-          <Text>Delete {item.title}</Text>
-        </View>
+        <Pressable onPress={() => removeItem(item.id)}>
+          <Text>Delete</Text>
+        </Pressable>
       )}
     />
   );
 }
 ```
 
-## Ref API
+## Features
 
-The component forwards the underlying `FlatList` ref and adds one extra method:
+- Works exactly like `FlatList` with swipe support added
+- Add per-item swipe actions like delete, archive, and pin
+- Use `ReanimatedSwipeable` by default, or the classic import when needed
+- Choose single-open or multi-open row behavior
+- Close open rows imperatively when screens, tabs, or filters change
+- Keep list usage simple with item-based action renderers
 
-- `closeAnyOpenRows(): void`
+## API
 
-When `enableOpenMultipleRows` is `true`, it closes every currently open row. When it is `false`, it closes the single tracked open row.
+`SwipeableFlatList` accepts normal `FlatList` props plus:
+
+| Prop | Type | Purpose |
+| --- | --- | --- |
+| `renderLeftActions` | `(item) => React.ReactNode` | Render left swipe actions for a row |
+| `renderRightActions` | `(item) => React.ReactNode` | Render right swipe actions for a row |
+| `swipeableProps` | `SwipeableFlatListSwipeableProps` | Forward extra props to the underlying RNGH swipeable component |
+| `enableOpenMultipleRows` | `boolean` | Control whether multiple rows can stay open |
+
+Notes:
+
+- `renderLeftActions` and `renderRightActions` receive the item directly
+- direct `renderLeftActions` / `renderRightActions` props take priority over the same fields inside `swipeableProps`
+- `swipeableProps` targets `Swipeable` on the default import and `ReanimatedSwipeable` on the `/reanimated` import
+
+### Ref API
+
+The forwarded ref behaves like a `FlatList` ref and adds:
+
+| Method | Purpose |
+| --- | --- |
+| `closeAnyOpenRows()` | Close the currently open row, or all open rows when multiple-open mode is enabled |
 
 ```tsx
 import React, { useRef } from 'react';
-import { Button } from 'react-native';
 import SwipeableFlatList, {
   SwipeableFlatListRef,
-} from 'rn-gesture-swipeable-flatlist';
+} from 'rn-gesture-swipeable-flatlist/reanimated';
 
-type TodoItem = {
-  id: string;
-  title: string;
-};
+const listRef = useRef<SwipeableFlatListRef<Item> | null>(null);
 
-export function TodoScreen({ data }: { data: TodoItem[] }) {
-  const flatListRef = useRef<SwipeableFlatListRef<TodoItem> | null>(null);
-
-  return (
-    <>
-      <Button title="Close open rows" onPress={() => flatListRef.current?.closeAnyOpenRows()} />
-      <SwipeableFlatList
-        ref={flatListRef}
-        data={data}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => null}
-      />
-    </>
-  );
-}
+listRef.current?.closeAnyOpenRows();
 ```
 
-## Package-Specific Props
+## When to use
 
-`SwipeableFlatList` accepts all `FlatList` props. In addition, it supports:
+- swipe to delete in React Native
+- inbox-style message lists
+- archive / pin / delete row actions
+- activity, notifications, history, and settings lists with row gestures
 
-### `renderLeftActions?: (item) => React.ReactNode`
+## When not to use
 
-Convenience helper for the row's left swipe actions.
+- This library is not for drag-and-drop sorting
+- This library is not a full custom gesture system
+- This library is not for non-`FlatList` rendering patterns
 
-### `renderRightActions?: (item) => React.ReactNode`
+## AI / Codex Notes
 
-Convenience helper for the row's right swipe actions.
+- Prefer `rn-gesture-swipeable-flatlist/reanimated`
+- Do not mix the default and `/reanimated` imports for the same list
+- Treat it like a normal `FlatList` with extra swipe props
+- Always pass a stable `keyExtractor` for dynamic data
 
-### `swipeableProps?: SwipeableProps`
+## Links
 
-Additional props forwarded to each `Swipeable` row.
-
-If you pass `renderLeftActions` or `renderRightActions` directly to `SwipeableFlatList`, those values take precedence over the same props inside `swipeableProps`.
-
-### `enableOpenMultipleRows?: boolean`
-
-Controls whether multiple rows can stay open at the same time.
-
-- `true` (default): multiple rows may stay open
-- `false`: opening a new row closes the previously open row
-
-This prop can be updated at runtime.
-
-## Key Behavior
-
-Row tracking follows the same priority as `FlatList` keys:
-
-1. `keyExtractor(item, index)` when provided
-2. `item.key`
-3. `item.id`
-4. `index`
-
-For dynamic lists, supply a stable `keyExtractor` whenever possible.
-
-## Notes
-
-- `renderItem` receives the normal `FlatList` item info object, including working `separators`.
-- This package depends on `react-native-gesture-handler` as a peer dependency. Install and configure it in your app.
-- `2.4.x` still uses Gesture Handler's `Swipeable` under the hood, so existing setups do not need to add Reanimated just to adopt this release.
-- For general `FlatList` props, see the React Native docs: https://reactnative.dev/docs/flatlist
-- For the underlying `Swipeable` options used by this release, see the Gesture Handler 2.x docs: https://docs.swmansion.com/react-native-gesture-handler/docs/2.x/components/swipeable/
-
-## Example Project
-
-https://github.com/GFean/rn-gesture-swipeable-flatlist-example
+- React Native `FlatList` docs: https://reactnative.dev/docs/flatlist
+- Gesture Handler `Swipeable` docs: https://docs.swmansion.com/react-native-gesture-handler/docs/2.x/components/swipeable/
+- Gesture Handler `ReanimatedSwipeable` docs: https://docs.swmansion.com/react-native-gesture-handler/docs/2.x/components/reanimated_swipeable/
+- Example project: https://github.com/GFean/rn-gesture-swipeable-flatlist-example
 
 ## License
 

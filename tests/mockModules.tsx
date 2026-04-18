@@ -101,30 +101,34 @@ const MockFlatList = React.forwardRef(function MockFlatList(
 
 let swipeableId = 0;
 
-const MockSwipeable = React.forwardRef(function MockSwipeable(
-  props: Record<string, unknown> & { children?: React.ReactNode },
-  ref: React.ForwardedRef<{ close: () => void; openLeft: () => void; openRight: () => void; reset: () => void }>
-) {
-  const { children, ...rest } = props;
-  const handle = useMemo(() => {
-    const rowId = `row-${swipeableId}`;
+const createMockSwipeable = (hostType: 'MockSwipeable' | 'MockReanimatedSwipeable') =>
+  React.forwardRef(function MockSwipeable(
+    props: Record<string, unknown> & { children?: React.ReactNode },
+    ref: React.ForwardedRef<{ close: () => void; openLeft: () => void; openRight: () => void; reset: () => void }>
+  ) {
+    const { children, ...rest } = props;
+    const handle = useMemo(() => {
+      const rowId = `row-${swipeableId}`;
 
-    swipeableId += 1;
+      swipeableId += 1;
 
-    return {
-      close() {
-        mockEvents.closedRows.push(rowId);
-      },
-      openLeft() {},
-      openRight() {},
-      reset() {},
-    };
-  }, []);
+      return {
+        close() {
+          mockEvents.closedRows.push(rowId);
+        },
+        openLeft() {},
+        openRight() {},
+        reset() {},
+      };
+    }, []);
 
-  useImperativeHandle(ref, () => handle, [handle]);
+    useImperativeHandle(ref, () => handle, [handle]);
 
-  return React.createElement('MockSwipeable', { ...rest, swipeableHandle: handle }, children);
-});
+    return React.createElement(hostType, { ...rest, swipeableHandle: handle }, children);
+  });
+
+const MockSwipeable = createMockSwipeable('MockSwipeable');
+const MockReanimatedSwipeable = createMockSwipeable('MockReanimatedSwipeable');
 
 export const mockReactNativeModule = {
   FlatList: MockFlatList,
@@ -145,6 +149,10 @@ export const withMockedModules = <T,>(loadModule: () => T): T => {
 
     if (request === 'react-native-gesture-handler') {
       return mockGestureHandlerModule;
+    }
+
+    if (request === 'react-native-gesture-handler/ReanimatedSwipeable') {
+      return MockReanimatedSwipeable;
     }
 
     return originalLoad.call(nodeModule, request, parent, isMain);

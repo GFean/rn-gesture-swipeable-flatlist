@@ -1,5 +1,8 @@
 export interface SwipeableRowHandle {
   close: () => void;
+  openLeft: () => void;
+  openRight: () => void;
+  reset: () => void;
 }
 
 export interface SwipeableRowsController {
@@ -27,6 +30,11 @@ export const createSwipeableRowsController = (
   const setAllowMultipleOpenRows = (enabled: boolean) => {
     if (allowMultipleOpenRows === enabled) {
       return;
+    }
+
+    if (enabled && openRowKey) {
+      openRowKeys.add(openRowKey);
+      openRowKey = null;
     }
 
     if (!enabled) {
